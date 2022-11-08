@@ -68,6 +68,7 @@ public class HyperUserService {
         }
 
         user.setUsername(updated.username());
+        user.setPassword(updated.password());
         user.setName(updated.name());
         user.setSurname(updated.surname());
         userRepo.save(user);
