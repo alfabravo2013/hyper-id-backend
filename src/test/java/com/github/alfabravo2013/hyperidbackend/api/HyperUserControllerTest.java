@@ -8,9 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 
-import static com.github.alfabravo2013.hyperidbackend.api.ErrorDto.LOGIN_ERR;
-import static com.github.alfabravo2013.hyperidbackend.api.ErrorDto.REGISTER_ERR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -43,7 +42,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).isEqualTo(REGISTER_ERR);
+        assertThat(response.getBody().error().message()).isEqualTo(UsernameTakenException.MESSAGE);
     }
 
     @Test
@@ -79,7 +78,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).isEqualTo(LOGIN_ERR);
+        assertThat(response.getBody().error().message()).isEqualTo("error");
     }
 
     @Test
@@ -91,6 +90,6 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).isEqualTo(LOGIN_ERR);
+        assertThat(response.getBody().error().message()).isEqualTo("error");
     }
 }

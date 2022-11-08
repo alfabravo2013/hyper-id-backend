@@ -2,6 +2,7 @@ package com.github.alfabravo2013.hyperidbackend.api;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,8 +13,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
 
-import static com.github.alfabravo2013.hyperidbackend.api.ErrorDto.REGISTER_ERR;
+import javax.servlet.http.HttpSession;
+import java.util.UUID;
 
 @RestController
 public class HyperUserController {
@@ -26,13 +29,11 @@ public class HyperUserController {
     }
 
     @PostMapping(path = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> register(@RequestBody HyperUserCredentials credentials) {
+    public ResponseEntity<Void> register(@RequestBody HyperUserCredentials credentials) {
         LOGGER.debug("Registering: {}", credentials);
 
-        return userService
-                .register(credentials)
-                .map(dto -> new ResponseEntity<>(HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(ErrorDto.of(REGISTER_ERR), HttpStatus.CONFLICT));
+        userService.register(credentials);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping(
@@ -42,11 +43,15 @@ public class HyperUserController {
     public ResponseEntity<?> login(@RequestBody HyperUserCredentials credentials) {
         LOGGER.debug("Logging in: {}", credentials);
 
-        // todo refactor to exception handling
-        return userService
-                .login(credentials)
-                .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
+        var body = userService.login(credentials);
+
+        var headers = new HttpHeaders();
+        var sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
+        var token = UUID.randomUUID().toString();
+        headers.add("sessionId", sessionId);
+        headers.add("accessToken", token);
+
+        return new ResponseEntity<>(body, headers, HttpStatus.OK);
     }
 
     @PostMapping(path = "/logout")
