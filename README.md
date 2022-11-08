@@ -21,7 +21,7 @@ and run on your computer.
 install JDK 17 and execute the following command in the directory where the jar file is located:
 
 ```bash
-java - jar hyper-id-backend.jar
+java -jar hyper-id-backend.jar
 ```
 
 #### Option 3. Download the source code:
