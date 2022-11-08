@@ -1,5 +1,9 @@
 package com.github.alfabravo2013.hyperidbackend.api;
 
+import com.github.alfabravo2013.hyperidbackend.exceptions.AccessDeniedException;
+import com.github.alfabravo2013.hyperidbackend.exceptions.FailedAuthException;
+import com.github.alfabravo2013.hyperidbackend.exceptions.NotFoundException;
+import com.github.alfabravo2013.hyperidbackend.exceptions.UsernameTakenException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

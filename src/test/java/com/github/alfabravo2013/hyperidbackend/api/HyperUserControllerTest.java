@@ -1,5 +1,8 @@
 package com.github.alfabravo2013.hyperidbackend.api;
 
+import com.github.alfabravo2013.hyperidbackend.exceptions.FailedAuthException;
+import com.github.alfabravo2013.hyperidbackend.exceptions.NotFoundException;
+import com.github.alfabravo2013.hyperidbackend.exceptions.UsernameTakenException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

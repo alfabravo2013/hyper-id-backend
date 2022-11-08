@@ -53,8 +53,8 @@ public class HyperUserController {
     }
 
     @PostMapping(path = "/logout")
-    public ResponseEntity<?> logout() {
-        // todo set current principal's accessToken to null
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
+        userService.logout(token);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -71,9 +71,8 @@ public class HyperUserController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateAccount(
             @RequestHeader("Authorization") String token,
-            @RequestBody HyperUserDto userDto) {
+            @RequestBody HyperUserUpdateDto userDto) {
         LOGGER.debug("Setting new user details: {}", userDto);
-
         var body = userService.updateAccount(token, userDto);
         return new ResponseEntity<>(body, HttpStatus.OK);
     }

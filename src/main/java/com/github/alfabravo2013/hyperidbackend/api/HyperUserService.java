@@ -1,5 +1,9 @@
 package com.github.alfabravo2013.hyperidbackend.api;
 
+import com.github.alfabravo2013.hyperidbackend.exceptions.AccessDeniedException;
+import com.github.alfabravo2013.hyperidbackend.exceptions.FailedAuthException;
+import com.github.alfabravo2013.hyperidbackend.exceptions.NotFoundException;
+import com.github.alfabravo2013.hyperidbackend.exceptions.UsernameTakenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -54,12 +58,11 @@ public class HyperUserService {
         return HyperUserDto.of(user);
     }
 
-    public HyperUserDto updateAccount(String token, HyperUserDto updated) {
-        // todo think about password changing and rethink how access is granted
-        //  now it's prohibited to change username while we need to check if principal owns the account to be updated
-        //  JWT token as a solution?
+    public HyperUserDto updateAccount(String token, HyperUserUpdateDto updated) {
 
         var user = userRepo.findByAccessToken(token).orElseThrow(NotFoundException::new);
+
+        // fixme cannot change username now
         if (!user.getUsername().equals(updated.username())) {
             throw new AccessDeniedException();
         }
@@ -75,5 +78,6 @@ public class HyperUserService {
     public void logout(String token) {
         var user = userRepo.findByAccessToken(token).orElseThrow(NotFoundException::new);
         user.setAccessToken(null);
+        userRepo.save(user);
     }
 }

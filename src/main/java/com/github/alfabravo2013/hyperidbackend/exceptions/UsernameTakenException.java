@@ -1,4 +1,4 @@
-package com.github.alfabravo2013.hyperidbackend.api;
+package com.github.alfabravo2013.hyperidbackend.exceptions;
 
 public class UsernameTakenException extends RuntimeException {
     public static final String MESSAGE = "This username already used by someone else.";
