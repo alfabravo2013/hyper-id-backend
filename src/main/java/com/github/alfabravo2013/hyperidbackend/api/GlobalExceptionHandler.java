@@ -21,4 +21,16 @@ public class GlobalExceptionHandler {
         var body = ErrorDto.of(ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorDto> handleAccessDenied(HttpServletRequest req, AccessDeniedException ex) {
+        var body = ErrorDto.of(ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorDto> handleNotFound(HttpServletRequest req, NotFoundException ex) {
+        var body = ErrorDto.of(ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
 }

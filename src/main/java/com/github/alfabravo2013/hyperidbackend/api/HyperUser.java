@@ -14,6 +14,7 @@ public class HyperUser {
     private String name = "";
     private String surname = "";
     private String password;
+    private String accessToken;
 
     public String getUsername() {
         return username;
@@ -45,6 +46,14 @@ public class HyperUser {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
     @Override

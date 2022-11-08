@@ -3,7 +3,6 @@ package com.github.alfabravo2013.hyperidbackend.api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,11 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
-
-import javax.servlet.http.HttpSession;
-import java.util.UUID;
 
 @RestController
 public class HyperUserController {
@@ -43,11 +40,12 @@ public class HyperUserController {
     public ResponseEntity<?> login(@RequestBody HyperUserCredentials credentials) {
         LOGGER.debug("Logging in: {}", credentials);
 
-        var body = userService.login(credentials);
+        var map = userService.login(credentials);
+        var body = (HyperUserDto) map.get("body");
+        var token = (String) map.get("token");
+        var sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
 
         var headers = new HttpHeaders();
-        var sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
-        var token = UUID.randomUUID().toString();
         headers.add("sessionId", sessionId);
         headers.add("accessToken", token);
 
@@ -56,20 +54,28 @@ public class HyperUserController {
 
     @PostMapping(path = "/logout")
     public ResponseEntity<?> logout() {
+        // todo set current principal's accessToken to null
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping(path = "/account", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getAccount(HttpRequest request) {
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<HyperUserDto> getAccount(@RequestHeader("Authorization") String token) {
+        LOGGER.debug("Found Authorization: {}", token);
+        var body = userService.getAccount(token);
+        return new ResponseEntity<>(body, HttpStatus.OK);
     }
 
     @PutMapping(
             path = "/account",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateAccount(HttpRequest request, @RequestBody HyperUserDto userDto) {
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> updateAccount(
+            @RequestHeader("Authorization") String token,
+            @RequestBody HyperUserDto userDto) {
+        LOGGER.debug("Setting new user details: {}", userDto);
+
+        var body = userService.updateAccount(token, userDto);
+        return new ResponseEntity<>(body, HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/account")

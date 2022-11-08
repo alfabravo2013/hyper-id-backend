@@ -5,7 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
+import java.util.UUID;
+
 @Service
+@Transactional
 public class HyperUserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HyperUserController.class);
 
@@ -15,7 +19,6 @@ public class HyperUserService {
         this.userRepo = userRepo;
     }
 
-    @Transactional
     public void register(HyperUserCredentials credentials) {
         if (userRepo.existsById(credentials.username())) {
             LOGGER.debug("Found existing {}", credentials.username());
@@ -28,18 +31,47 @@ public class HyperUserService {
         userRepo.save(newUser);
     }
 
-    public HyperUserDto login(HyperUserCredentials credentials) {
+    public Map<String, Object> login(HyperUserCredentials credentials) {
         var user = userRepo.findById(credentials.username()).orElseThrow(FailedAuthException::new);
 
         if (!user.getPassword().equals(credentials.password())) {
             throw new FailedAuthException();
         }
 
+        var newToken = UUID.randomUUID().toString();
+        user.setAccessToken(newToken);
+        userRepo.save(user);
+
+        return Map.of("body", HyperUserDto.of(user), "token", user.getAccessToken());
+    }
+
+    public void deleteAllUsers() {
+        userRepo.deleteAll();
+    }
+
+    public HyperUserDto getAccount(String token) {
+        var user = userRepo.findByAccessToken(token).orElseThrow(NotFoundException::new);
         return HyperUserDto.of(user);
     }
 
-    @Transactional
-    public void deleteAllUsers() {
-        userRepo.deleteAll();
+    public HyperUserDto updateAccount(String token, HyperUserDto updated) {
+        // todo think about password changing
+
+        var user = userRepo.findByAccessToken(token).orElseThrow(NotFoundException::new);
+        if (!user.getUsername().equals(updated.username())) {
+            throw new AccessDeniedException();
+        }
+
+        user.setUsername(updated.username());
+        user.setName(updated.name());
+        user.setSurname(updated.surname());
+        userRepo.save(user);
+
+        return HyperUserDto.of(user);
+    }
+
+    public void logout(String token) {
+        var user = userRepo.findByAccessToken(token).orElseThrow(NotFoundException::new);
+        user.setAccessToken(null);
     }
 }
