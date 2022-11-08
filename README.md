@@ -6,7 +6,7 @@
 
 ### How to run
 
-Download an executable for your OS:
+#### Option 1. Download an executable for your OS:
 
 - [Windows_x86_64](https://github.com/alfabravo2013/hyper-id-backend/releases/download/v0.1/hyperid-Windows-snapshot-x86_64.zip)
 - [Linux_x86_64](https://github.com/alfabravo2013/hyper-id-backend/releases/download/v0.1/hyperid-Linux-snapshot-x86_64.zip)
@@ -14,12 +14,22 @@ Download an executable for your OS:
 
 and run on your computer.
 
-Or download the source code
+#### Option 2. Download the executable jar:
+
+- [hyper-id-backend.jar](https://github.com/alfabravo2013/hyper-id-backend/releases/download/v0.1/hyper-id-backend.jar)
+
+install JDK 17 and execute the following command in the directory where the jar file is located:
+
+```bash
+java - jar hyper-id-backend.jar
+```
+
+#### Option 3. Download the source code:
 
 - [.zip](https://github.com/alfabravo2013/hyper-id-backend/archive/refs/tags/v0.1.zip) or 
 - [.tar.gz](https://github.com/alfabravo2013/hyper-id-backend/archive/refs/tags/v0.1.tar.gz)
 
-install JDK 17 and execute the following command in the project root directory:
+unzip it, install JDK 17 and execute the following command in the project root directory:
 
 ```bash
 ./gradlew bootRun
