@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.github.alfabravo2013.hyperidbackend.api.ErrorDto.REGISTER_ERR;
+
 @RestController
 public class HyperUserController {
     private static final Logger LOGGER = LoggerFactory.getLogger(HyperUserController.class);
@@ -29,8 +31,8 @@ public class HyperUserController {
 
         return userService
                 .register(credentials)
-                .map(dto -> new ResponseEntity<Void>(HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.CONFLICT));
+                .map(dto -> new ResponseEntity<>(HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(ErrorDto.of(REGISTER_ERR), HttpStatus.CONFLICT));
     }
 
     @PostMapping(
@@ -40,6 +42,7 @@ public class HyperUserController {
     public ResponseEntity<?> login(@RequestBody HyperUserCredentials credentials) {
         LOGGER.debug("Logging in: {}", credentials);
 
+        // todo refactor to exception handling
         return userService
                 .login(credentials)
                 .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
