@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -90,5 +93,40 @@ class HyperUserControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().error().message()).isEqualTo(FailedAuthException.MESSAGE);
+    }
+
+    @Test
+    void whenGetAccountWithTokenShouldReturnAccount() {
+        var credentials = new HyperUserCredentials("user", "password");
+        template.postForEntity("/register", credentials, Void.class);
+        var response = template.postForEntity("/login", credentials, HyperUserDto.class);
+        var token = response
+                .getHeaders()
+                .getFirst("accessToken");
+
+        System.out.println(token);
+
+        var headers = new HttpHeaders();
+        headers.add("Authorization", token);
+        var request = new HttpEntity<Void>(headers);
+        var account = template.exchange("/account", HttpMethod.GET, request, HyperUserDto.class);
+
+        assertThat(account.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(account.getBody()).isNotNull();
+        assertThat(account.getBody().username()).isEqualTo(credentials.username());
+    }
+
+    @Test
+    void whenGetAccountWithBadTokenShouldReturn404() {
+        var registration = new HyperUserCredentials("user", "password");
+        template.postForEntity("/account", registration, Void.class);
+        var headers = new HttpHeaders();
+        headers.add("Authorization", "token");
+        var request = new HttpEntity<Void>(headers);
+        var response = template.exchange("/account", HttpMethod.GET, request, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).isEqualTo(NotFoundException.MESSAGE);
     }
 }

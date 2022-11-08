@@ -55,7 +55,9 @@ public class HyperUserService {
     }
 
     public HyperUserDto updateAccount(String token, HyperUserDto updated) {
-        // todo think about password changing
+        // todo think about password changing and rethink how access is granted
+        //  now it's prohibited to change username while we need to check if principal owns the account to be updated
+        //  JWT token as a solution?
 
         var user = userRepo.findByAccessToken(token).orElseThrow(NotFoundException::new);
         if (!user.getUsername().equals(updated.username())) {
