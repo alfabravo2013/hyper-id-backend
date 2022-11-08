@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -78,7 +77,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).isEqualTo("error");
+        assertThat(response.getBody().error().message()).isEqualTo(FailedAuthException.MESSAGE);
     }
 
     @Test
@@ -90,6 +89,6 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).isEqualTo("error");
+        assertThat(response.getBody().error().message()).isEqualTo(FailedAuthException.MESSAGE);
     }
 }
