@@ -6,6 +6,7 @@ import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,25 +17,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class HyperUserController {
     private static final Logger LOGGER = LoggerFactory.getLogger(HyperUserController.class);
 
-    private final HyperUserRepo userRepo;
+    private final HyperUserService userService;
 
-    public HyperUserController(HyperUserRepo userRepo) {
-        this.userRepo = userRepo;
+    public HyperUserController(HyperUserService userService) {
+        this.userService = userService;
     }
 
     @PostMapping(path = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> register(@RequestBody HyperUserCredentials credentials) {
+    public ResponseEntity<?> register(@RequestBody HyperUserCredentials credentials) {
         LOGGER.debug("Registering: {}", credentials);
 
-        if (userRepo.existsById(credentials.username())) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-
-        var newUser = new HyperUser();
-        newUser.setUsername(credentials.username());
-        newUser.setPassword(credentials.password());
-        userRepo.save(newUser);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return userService
+                .register(credentials)
+                .map(dto -> new ResponseEntity<Void>(HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.CONFLICT));
     }
 
     @PostMapping(
@@ -44,10 +40,8 @@ public class HyperUserController {
     public ResponseEntity<?> login(@RequestBody HyperUserCredentials credentials) {
         LOGGER.debug("Logging in: {}", credentials);
 
-        return userRepo
-                .findById(credentials.username())
-                .filter(user -> user.getPassword().matches(credentials.password()))
-                .map(HyperUserDto::of)
+        return userService
+                .login(credentials)
                 .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
     }
@@ -67,6 +61,12 @@ public class HyperUserController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateAccount(HttpRequest request, @RequestBody HyperUserDto userDto) {
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping(path = "/account")
+    public ResponseEntity<Void> deleteAll() {
+        userService.deleteAllUsers();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
