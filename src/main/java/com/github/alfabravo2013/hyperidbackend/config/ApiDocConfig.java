@@ -13,12 +13,12 @@ import org.springframework.context.annotation.Configuration;
 public class ApiDocConfig {
 
     @Bean
-    public OpenAPI openApi() {
+    public OpenAPI openApi(@Value("${springdoc.version}") String version) {
         return new OpenAPI()
                 .components(new Components())
                 .info(new Info()
-                        .title("HyperID ")
-                        .version("0.1")
+                        .title("HyperID")
+                        .version(version)
                         .description("Hyperskill Full Stack Project")
                         .license(new License().name("Apache 2.0").url("http://springdoc.org")));
     }
