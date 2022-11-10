@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 
+import java.util.Map;
+
+@CrossOrigin(originPatterns = "*")
 @RestController
 public class HyperUserController {
     private static final Logger LOGGER = LoggerFactory.getLogger(HyperUserController.class);
@@ -143,4 +147,8 @@ public class HyperUserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping("/test")
+    public ResponseEntity<Object> test() {
+        return new ResponseEntity<>(Map.of("text", "Test"), HttpStatus.OK);
+    }
 }
