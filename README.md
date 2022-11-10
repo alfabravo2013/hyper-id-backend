@@ -3,6 +3,7 @@
 ## Hyperskill full stack project, backend REST API
 
 [![Build Executables](https://github.com/alfabravo2013/hyper-id-backend/actions/workflows/native-artifact.yml/badge.svg?branch=master&event=workflow_dispatch)](https://github.com/alfabravo2013/hyper-id-backend/actions/workflows/native-artifact.yml)
+[![Tests](https://github.com/alfabravo2013/hyper-id-backend/actions/workflows/tests.yml/badge.svg)](https://github.com/alfabravo2013/hyper-id-backend/actions/workflows/tests.yml)
 
 ### How to run
 
