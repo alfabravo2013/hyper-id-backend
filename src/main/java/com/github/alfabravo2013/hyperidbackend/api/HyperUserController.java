@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 
+import javax.validation.Valid;
 import java.util.Map;
 
 @CrossOrigin(originPatterns = "*")
@@ -39,13 +40,14 @@ public class HyperUserController {
     @Operation(summary = "Create user", description = "Register a new user with username and password")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation"),
+            @ApiResponse(responseCode = "400", description = "bad credentials"),
             @ApiResponse(responseCode = "409", description = "username already taken")})
     @PostMapping(path = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> register(
             @Parameter(
                     description = "username and password container",
                     content = @Content(schema = @Schema(implementation = HyperUserCredentials.class)))
-            @RequestBody HyperUserCredentials credentials) {
+            @RequestBody @Valid HyperUserCredentials credentials) {
         LOGGER.debug("Registering: {}", credentials);
 
         userService.register(credentials);
