@@ -40,7 +40,7 @@ public class HyperUserController {
     @Operation(summary = "Create user", description = "Register a new user with username and password")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation"),
-            @ApiResponse(responseCode = "400", description = "bad credentials"),
+            @ApiResponse(responseCode = "400", description = "Incorrect JSON format"),
             @ApiResponse(responseCode = "409", description = "username already taken")})
     @PostMapping(path = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> register(
@@ -63,6 +63,7 @@ public class HyperUserController {
                             @Header(name = "sessionId", description = "Session ID") },
                     content = @Content(schema = @Schema(implementation = HyperUserDto.class))
             ),
+            @ApiResponse(responseCode = "400", description = "Incorrect JSON format"),
             @ApiResponse(responseCode = "401", description = "Bad credentials") })
     @PostMapping(
             path = "/login",
