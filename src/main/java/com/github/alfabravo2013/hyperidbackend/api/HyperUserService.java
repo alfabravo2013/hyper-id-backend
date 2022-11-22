@@ -54,21 +54,14 @@ public class HyperUserService {
     }
 
     public HyperUserDto getAccount(String token) {
-        var user = userRepo.findByAccessToken(token).orElseThrow(NotFoundException::new);
+        var user = userRepo.findByAccessToken(token).orElseThrow(AccessDeniedException::new);
         return HyperUserDto.of(user);
     }
 
     public HyperUserDto updateAccount(String token, HyperUserUpdateDto updated) {
 
-        var user = userRepo.findByAccessToken(token).orElseThrow(NotFoundException::new);
+        var user = userRepo.findByAccessToken(token).orElseThrow(AccessDeniedException::new);
 
-        // fixme cannot change username now
-        if (!user.getUsername().equals(updated.username())) {
-            throw new AccessDeniedException();
-        }
-
-        user.setUsername(updated.username());
-        user.setPassword(updated.password());
         user.setName(updated.name());
         user.setSurname(updated.surname());
         userRepo.save(user);
