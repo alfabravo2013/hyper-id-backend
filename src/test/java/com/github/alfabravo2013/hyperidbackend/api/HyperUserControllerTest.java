@@ -1,7 +1,7 @@
 package com.github.alfabravo2013.hyperidbackend.api;
 
+import com.github.alfabravo2013.hyperidbackend.exceptions.AccessDeniedException;
 import com.github.alfabravo2013.hyperidbackend.exceptions.FailedAuthException;
-import com.github.alfabravo2013.hyperidbackend.exceptions.NotFoundException;
 import com.github.alfabravo2013.hyperidbackend.exceptions.UsernameTakenException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -314,7 +314,7 @@ class HyperUserControllerTest {
     }
 
     @Test
-    void whenGetAccountWithBadTokenShouldReturn404() {
+    void whenGetAccountWithBadTokenShouldReturn403() {
         var registration = new HyperUserCredentials("user", "password");
         template.postForEntity("/account", registration, Void.class);
         var headers = new HttpHeaders();
@@ -322,8 +322,22 @@ class HyperUserControllerTest {
         var request = new HttpEntity<Void>(headers);
         var response = template.exchange("/account", HttpMethod.GET, request, ErrorDto.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).isEqualTo(NotFoundException.MESSAGE);
+        assertThat(response.getBody().error().message()).isEqualTo(AccessDeniedException.MESSAGE);
+    }
+
+    @Test
+    void whenGetAccountWithMissingTokenShouldReturn400() {
+        var registration = new HyperUserCredentials("user", "password");
+        template.postForEntity("/account", registration, Void.class);
+        var headers = new HttpHeaders();
+        headers.add("NoAuth", "token");
+        var request = new HttpEntity<Void>(headers);
+        var response = template.exchange("/account", HttpMethod.GET, request, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'Authorization' is empty");
     }
 }
