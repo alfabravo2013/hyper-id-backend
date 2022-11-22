@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-2019]
+        os: [ubuntu-20.04, macos-latest, windows-2019]
         graalvm-version: ['22.0.0.2']
         java-version: ['17']
         include:
