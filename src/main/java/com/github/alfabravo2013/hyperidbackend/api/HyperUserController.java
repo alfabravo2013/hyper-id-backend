@@ -88,7 +88,9 @@ public class HyperUserController {
     }
 
     @Operation(summary = "Log out", description = "invalidates provided access token")
-    @ApiResponse(responseCode = "200", description = "successful operation")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation"),
+            @ApiResponse(responseCode = "400", description = "header 'Authorization' is missing")})
     @PostMapping(path = "/logout")
     public ResponseEntity<?> logout(
             @Parameter(name = "Authorization", description = "access token")
