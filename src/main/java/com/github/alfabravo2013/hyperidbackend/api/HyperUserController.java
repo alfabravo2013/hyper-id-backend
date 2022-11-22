@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.validation.Valid;
-import java.util.Map;
 
 @CrossOrigin(originPatterns = "*")
 @RestController
@@ -40,7 +39,7 @@ public class HyperUserController {
     @Operation(summary = "Create user", description = "Register a new user with username and password")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation"),
-            @ApiResponse(responseCode = "400", description = "Incorrect JSON format"),
+            @ApiResponse(responseCode = "400", description = "invalid request body"),
             @ApiResponse(responseCode = "409", description = "username already taken")})
     @PostMapping(path = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> register(
@@ -63,8 +62,8 @@ public class HyperUserController {
                             @Header(name = "sessionId", description = "Session ID") },
                     content = @Content(schema = @Schema(implementation = HyperUserDto.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Incorrect JSON format"),
-            @ApiResponse(responseCode = "401", description = "Bad credentials") })
+            @ApiResponse(responseCode = "400", description = "invalid request body"),
+            @ApiResponse(responseCode = "401", description = "bad credentials") })
     @PostMapping(
             path = "/login",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -105,7 +104,7 @@ public class HyperUserController {
                     description = "successful operation",
                     content = @Content(schema = @Schema(implementation = HyperUserDto.class))),
             @ApiResponse(responseCode = "403", description = "no account associated with provided token"),
-            @ApiResponse(responseCode = "400", description = "Header 'Authorization' is missing")
+            @ApiResponse(responseCode = "400", description = "header 'Authorization' is missing")
     })
     @GetMapping(path = "/account", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HyperUserDto> getAccount(
@@ -123,7 +122,8 @@ public class HyperUserController {
                     responseCode = "200",
                     description = "successful operation",
                     content = @Content(schema = @Schema(implementation = HyperUserDto.class))),
-            @ApiResponse(responseCode = "404", description = "no account associated with provided token")
+            @ApiResponse(responseCode = "403", description = "no account associated with provided token"),
+            @ApiResponse(responseCode = "400", description = "invalid request body"),
     })
     @PutMapping(
             path = "/account",
@@ -149,10 +149,5 @@ public class HyperUserController {
     public ResponseEntity<Void> deleteAll() {
         userService.deleteAllUsers();
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @GetMapping("/test")
-    public ResponseEntity<Object> test() {
-        return new ResponseEntity<>(Map.of("text", "Test"), HttpStatus.OK);
     }
 }
