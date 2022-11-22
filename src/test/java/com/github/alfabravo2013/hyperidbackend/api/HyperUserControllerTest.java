@@ -15,6 +15,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -48,6 +50,84 @@ class HyperUserControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().error().message()).isEqualTo(UsernameTakenException.MESSAGE);
+    }
+
+    @Test
+    void whenRegisterWithEmptyUsernameShouldReturn400() {
+        var credentials = new HyperUserCredentials("", "password");
+
+        var response = template.postForEntity("/register", credentials, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'username' cannot be empty");
+    }
+
+    @Test
+    void whenRegisterWithBlankUsernameShouldReturn400() {
+        var credentials = new HyperUserCredentials("     ", "password");
+
+        var response = template.postForEntity("/register", credentials, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'username' cannot be blank");
+    }
+
+    @Test
+    void whenRegisterWithMissingUsernameShouldReturn400() {
+        var credentials = Map.of("password", "12345");
+
+        var response = template.postForEntity("/register", credentials, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'username' cannot be empty");
+    }
+
+    @Test
+    void whenRegisterWithEmptyPasswordShouldReturn400() {
+        var credentials = new HyperUserCredentials("username", "");
+
+        var response = template.postForEntity("/register", credentials, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'password' cannot be empty");
+    }
+
+    @Test
+    void whenRegisterWithBlankPasswordShouldReturn400() {
+        var credentials = new HyperUserCredentials("username", "     ");
+
+        var response = template.postForEntity("/register", credentials, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'password' cannot be blank");
+    }
+
+    @Test
+    void whenRegisterWithMissingPasswordShouldReturn400() {
+        var credentials = Map.of("username", "alfa");
+
+        var response = template.postForEntity("/register", credentials, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'password' cannot be empty");
+    }
+
+    @Test
+    void whenRegisterWithExtraFieldShouldReturn400() {
+        var credentials = Map.of(
+                "username", "alfa", "password", "1234", "extra_field", "some");
+
+        var response = template.postForEntity("/register", credentials, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("Unknown field: extra_field");
     }
 
     @Test
