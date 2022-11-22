@@ -104,7 +104,8 @@ public class HyperUserController {
                     responseCode = "200",
                     description = "successful operation",
                     content = @Content(schema = @Schema(implementation = HyperUserDto.class))),
-            @ApiResponse(responseCode = "404", description = "no account associated with provided token")
+            @ApiResponse(responseCode = "403", description = "no account associated with provided token"),
+            @ApiResponse(responseCode = "400", description = "Header 'Authorization' is missing")
     })
     @GetMapping(path = "/account", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HyperUserDto> getAccount(

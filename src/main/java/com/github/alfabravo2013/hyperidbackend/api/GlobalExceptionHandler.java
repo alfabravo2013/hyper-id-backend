@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -80,6 +81,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             message = "Unknown field: " + ((UnrecognizedPropertyException) rootCause).getPropertyName();
         }
         var body = ErrorDto.of(message);
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ErrorDto> handleMissingHeader(HttpServletRequest req, MissingRequestHeaderException ex) {
+        LOGGER.debug("Handling {} exception", ex.getClass().getSimpleName());
+        var body = ErrorDto.of("Header 'Authorization' is empty");
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 }
