@@ -301,8 +301,6 @@ class HyperUserControllerTest {
                 .getHeaders()
                 .getFirst("accessToken");
 
-        System.out.println(token);
-
         var headers = new HttpHeaders();
         headers.add("Authorization", token);
         var request = new HttpEntity<Void>(headers);
@@ -316,7 +314,7 @@ class HyperUserControllerTest {
     @Test
     void whenGetAccountWithBadTokenShouldReturn403() {
         var registration = new HyperUserCredentials("user", "password");
-        template.postForEntity("/account", registration, Void.class);
+        template.postForEntity("/register", registration, Void.class);
         var headers = new HttpHeaders();
         headers.add("Authorization", "token");
         var request = new HttpEntity<Void>(headers);
@@ -330,7 +328,7 @@ class HyperUserControllerTest {
     @Test
     void whenGetAccountWithMissingTokenShouldReturn400() {
         var registration = new HyperUserCredentials("user", "password");
-        template.postForEntity("/account", registration, Void.class);
+        template.postForEntity("/register", registration, Void.class);
         var headers = new HttpHeaders();
         headers.add("NoAuth", "token");
         var request = new HttpEntity<Void>(headers);
@@ -339,5 +337,153 @@ class HyperUserControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().error().message()).contains("'Authorization' is empty");
+    }
+
+    @Test
+    void whenUpdateWithMissingTokenShouldReturn400() {
+        var registration = new HyperUserCredentials("user", "password");
+        template.postForEntity("/register", registration, Void.class);
+
+        var update = new HyperUserUpdateDto("alfa", "bravo");
+        var headers = new HttpHeaders();
+        headers.add("NoAuth", "token");
+        var request = new HttpEntity<>(update, headers);
+        var response = template.exchange("/account", HttpMethod.PUT, request, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'Authorization' is empty");
+    }
+
+    @Test
+    void whenUpdateWithBadTokenShouldReturn403() {
+        var registration = new HyperUserCredentials("user", "password");
+        template.postForEntity("/register", registration, Void.class);
+
+        var update = new HyperUserUpdateDto("alfa", "bravo");
+        var headers = new HttpHeaders();
+        headers.add("Authorization", "token");
+        var request = new HttpEntity<>(update, headers);
+        var response = template.exchange("/account", HttpMethod.PUT, request, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains(AccessDeniedException.MESSAGE);
+    }
+
+    @Test
+    void whenUpdateWithEmptyNameShouldReturn400() {
+        var registration = new HyperUserCredentials("user", "password");
+        template.postForEntity("/register", registration, Void.class);
+
+        var token = template.postForEntity("/login", registration, Void.class)
+                .getHeaders()
+                .getFirst("accessToken");
+        var update = new HyperUserUpdateDto("", "bravo");
+        var headers = new HttpHeaders();
+        headers.add("Authorization", token);
+        var request = new HttpEntity<>(update, headers);
+        var response = template.exchange("/account", HttpMethod.PUT, request, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'name' is empty");
+    }
+
+    @Test
+    void whenUpdateWithMissingNameShouldReturn400() {
+        var registration = new HyperUserCredentials("user", "password");
+        template.postForEntity("/register", registration, Void.class);
+
+        var token = template.postForEntity("/login", registration, Void.class)
+                .getHeaders()
+                .getFirst("accessToken");
+        var update = Map.of("surname", "bravo");
+        var headers = new HttpHeaders();
+        headers.add("Authorization", token);
+        var request = new HttpEntity<>(update, headers);
+        var response = template.exchange("/account", HttpMethod.PUT, request, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'name' is empty");
+    }
+
+    @Test
+    void whenUpdateWithEmptySurnameShouldReturn200() {
+        var registration = new HyperUserCredentials("user", "password");
+        template.postForEntity("/register", registration, Void.class);
+
+        var token = template.postForEntity("/login", registration, Void.class)
+                .getHeaders()
+                .getFirst("accessToken");
+        var update = new HyperUserUpdateDto("alfa", "");
+        var headers = new HttpHeaders();
+        headers.add("Authorization", token);
+        var request = new HttpEntity<>(update, headers);
+        var response = template.exchange("/account", HttpMethod.PUT, request, HyperUserDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().name()).isEqualTo(update.name());
+        assertThat(response.getBody().surname()).isEqualTo(update.surname());
+    }
+
+    @Test
+    void whenUpdateWithMissingSurnameShouldReturn400() {
+        var registration = new HyperUserCredentials("user", "password");
+        template.postForEntity("/register", registration, Void.class);
+
+        var token = template.postForEntity("/login", registration, Void.class)
+                .getHeaders()
+                .getFirst("accessToken");
+        var update = Map.of("name", "alfa");
+        var headers = new HttpHeaders();
+        headers.add("Authorization", token);
+        var request = new HttpEntity<>(update, headers);
+        var response = template.exchange("/account", HttpMethod.PUT, request, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'surname' is missing");
+    }
+
+    @Test
+    void whenUpdateWithExtraFieldShouldReturn400() {
+        var registration = new HyperUserCredentials("user", "password");
+        template.postForEntity("/register", registration, Void.class);
+
+        var token = template.postForEntity("/login", registration, Void.class)
+                .getHeaders()
+                .getFirst("accessToken");
+        var update = Map.of("name", "alfa", "surname", "bravo", "extra", "value");
+        var headers = new HttpHeaders();
+        headers.add("Authorization", token);
+        var request = new HttpEntity<>(update, headers);
+        var response = template.exchange("/account", HttpMethod.PUT, request, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("Unknown field: extra");
+    }
+
+    @Test
+    void whenUpdateShouldReturnUpdatedUserDetails() {
+        var registration = new HyperUserCredentials("user", "password");
+        template.postForEntity("/register", registration, Void.class);
+
+        var token = template.postForEntity("/login", registration, Void.class)
+                .getHeaders()
+                .getFirst("accessToken");
+        var update = new HyperUserUpdateDto("alfa", "bravo");
+        var headers = new HttpHeaders();
+        headers.add("Authorization", token);
+        var request = new HttpEntity<>(update, headers);
+        var response = template.exchange("/account", HttpMethod.PUT, request, HyperUserDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().name()).isEqualTo(update.name());
+        assertThat(response.getBody().surname()).isEqualTo(update.surname());
     }
 }
