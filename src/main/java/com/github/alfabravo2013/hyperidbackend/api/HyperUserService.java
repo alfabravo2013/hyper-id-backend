@@ -54,7 +54,7 @@ public class HyperUserService {
     }
 
     public HyperUserDto getAccount(String token) {
-        var user = userRepo.findByAccessToken(token).orElseThrow(NotFoundException::new);
+        var user = userRepo.findByAccessToken(token).orElseThrow(AccessDeniedException::new);
         return HyperUserDto.of(user);
     }
 
