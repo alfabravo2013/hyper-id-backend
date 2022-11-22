@@ -123,7 +123,7 @@ public class HyperUserController {
                     description = "successful operation",
                     content = @Content(schema = @Schema(implementation = HyperUserDto.class))),
             @ApiResponse(responseCode = "403", description = "no account associated with provided token"),
-            @ApiResponse(responseCode = "400", description = "invalid request body"),
+            @ApiResponse(responseCode = "400", description = "invalid request body or missing 'Authorization' header"),
     })
     @PutMapping(
             path = "/account",
@@ -136,7 +136,7 @@ public class HyperUserController {
                     name = "new details",
                     description = "user details container",
                     content = @Content(schema = @Schema(implementation = HyperUserUpdateDto.class)))
-            @RequestBody HyperUserUpdateDto userDto) {
+            @Valid @RequestBody HyperUserUpdateDto userDto) {
         LOGGER.debug("Setting new user details: {}", userDto);
 
         var body = userService.updateAccount(token, userDto);
