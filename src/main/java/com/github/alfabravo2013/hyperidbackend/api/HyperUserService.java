@@ -2,7 +2,6 @@ package com.github.alfabravo2013.hyperidbackend.api;
 
 import com.github.alfabravo2013.hyperidbackend.exceptions.AccessDeniedException;
 import com.github.alfabravo2013.hyperidbackend.exceptions.FailedAuthException;
-import com.github.alfabravo2013.hyperidbackend.exceptions.NotFoundException;
 import com.github.alfabravo2013.hyperidbackend.exceptions.UsernameTakenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +69,7 @@ public class HyperUserService {
     }
 
     public void logout(String token) {
-        var user = userRepo.findByAccessToken(token).orElseThrow(NotFoundException::new);
+        var user = userRepo.findByAccessToken(token).orElseThrow(AccessDeniedException::new);
         user.setAccessToken(null);
         userRepo.save(user);
     }

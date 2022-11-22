@@ -486,4 +486,70 @@ class HyperUserControllerTest {
         assertThat(response.getBody().name()).isEqualTo(update.name());
         assertThat(response.getBody().surname()).isEqualTo(update.surname());
     }
+
+    @Test
+    void whenLogoutShouldReturn200() {
+        var registration = new HyperUserCredentials("user", "password");
+        template.postForEntity("/register", registration, Void.class);
+
+        var token = template.postForEntity("/login", registration, Void.class)
+                .getHeaders()
+                .getFirst("accessToken");
+        var headers = new HttpHeaders();
+        headers.add("Authorization", token);
+        var request = new HttpEntity<>(headers);
+        var response = template.postForEntity("/logout", request, Void.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void whenLogoutWithMissingTokenShouldReturn400() {
+        var registration = new HyperUserCredentials("user", "password");
+        template.postForEntity("/register", registration, Void.class);
+
+        var headers = new HttpHeaders();
+        headers.add("NoAuth", "token");
+        var request = new HttpEntity<>(headers);
+        var response = template.postForEntity("/logout", request, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'Authorization' is empty");
+    }
+
+    @Test
+    void whenLogoutWithBadTokenShouldReturn403() {
+        var registration = new HyperUserCredentials("user", "password");
+        template.postForEntity("/register", registration, Void.class);
+
+        var headers = new HttpHeaders();
+        headers.add("Authorization", "token");
+        var request = new HttpEntity<>(headers);
+        var response = template.postForEntity("/logout", request, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).isEqualTo(AccessDeniedException.MESSAGE);
+    }
+
+    @Test
+    void whenLogoutShouldNotAcceptTheSameToken() {
+        var registration = new HyperUserCredentials("user", "password");
+        template.postForEntity("/register", registration, Void.class);
+
+        var token = template.postForEntity("/login", registration, Void.class)
+                .getHeaders()
+                .getFirst("accessToken");
+        var headers = new HttpHeaders();
+        headers.add("Authorization", token);
+        var request = new HttpEntity<>(headers);
+        template.postForEntity("/logout", request, Void.class);
+
+        var response = template.exchange("/account", HttpMethod.GET, request, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).isEqualTo(AccessDeniedException.MESSAGE);
+    }
 }
