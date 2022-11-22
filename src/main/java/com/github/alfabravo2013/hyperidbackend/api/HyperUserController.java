@@ -72,7 +72,7 @@ public class HyperUserController {
             @Parameter(
                     description = "username and password container",
                     schema = @Schema(implementation = HyperUserCredentials.class))
-            @RequestBody HyperUserCredentials credentials) {
+            @RequestBody @Valid HyperUserCredentials credentials) {
         LOGGER.debug("Logging in: {}", credentials);
 
         var map = userService.login(credentials);

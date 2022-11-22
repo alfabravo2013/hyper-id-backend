@@ -71,7 +71,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).contains("'username' cannot be blank");
+        assertThat(response.getBody().error().message()).contains("'username' cannot be empty");
     }
 
     @Test
@@ -155,6 +155,94 @@ class HyperUserControllerTest {
     }
 
     @Test
+    void whenLoginShouldReturnNonEmptyHeaders() {
+        var credentials = new HyperUserCredentials("user", "password");
+        template.postForEntity("/register", credentials, Void.class);
+        var response = template.postForEntity("/login", credentials, HyperUserDto.class);
+
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+        assertThat(response.getHeaders().getFirst("accessToken")).isNotEmpty();
+        assertThat(response.getHeaders().getFirst("sessionId")).isNotEmpty();
+    }
+
+    @Test
+    void whenLoginWithEmptyUsernameShouldReturn400() {
+        var credentials = new HyperUserCredentials("", "password");
+
+        var response = template.postForEntity("/login", credentials, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'username' cannot be empty");
+    }
+
+    @Test
+    void whenLoginWithBlankUsernameShouldReturn400() {
+        var credentials = new HyperUserCredentials("     ", "password");
+
+        var response = template.postForEntity("/login", credentials, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'username' cannot be empty");
+    }
+
+    @Test
+    void whenLoginWithMissingUsernameShouldReturn400() {
+        var credentials = Map.of("password", "1234");
+
+        var response = template.postForEntity("/login", credentials, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'username' cannot be empty");
+    }
+
+    @Test
+    void whenLoginWithEmptyPasswordShouldReturn400() {
+        var credentials = new HyperUserCredentials("user", "");
+
+        var response = template.postForEntity("/login", credentials, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'password' cannot be empty");
+    }
+
+    @Test
+    void whenLoginWithBlankPasswordShouldReturn400() {
+        var credentials = new HyperUserCredentials("user", "     ");
+
+        var response = template.postForEntity("/login", credentials, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'password' cannot be empty");
+    }
+
+    @Test
+    void whenLoginWithMissingPasswordShouldReturn400() {
+        var credentials = Map.of("username", "user");
+
+        var response = template.postForEntity("/login", credentials, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("'password' cannot be empty");
+    }
+
+    @Test
+    void whenLoginWithExtraFieldShouldReturn400() {
+        var credentials = Map.of("username", "user", "extra", "value");
+
+        var response = template.postForEntity("/login", credentials, ErrorDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().error().message()).contains("Unknown field: extra");
+    }
+
+    @Test
     void whenLoginWithBadUsernameShouldReturn401() {
         var registration = new HyperUserCredentials("user", "password");
         var login = new HyperUserCredentials("admin", "password");
@@ -176,6 +264,32 @@ class HyperUserControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().error().message()).isEqualTo(FailedAuthException.MESSAGE);
+    }
+
+    @Test
+    void whenLoginRepeatedlyShouldReturnUniqueAccessTokens() {
+        var credentials = new HyperUserCredentials("user", "password");
+        template.postForEntity("/register", credentials, Void.class);
+
+        var token1 = template.postForEntity("/login", credentials, HyperUserDto.class)
+                .getHeaders()
+                .getFirst("accessToken");
+        var token2 = template.postForEntity("/login", credentials, HyperUserDto.class)
+                .getHeaders()
+                .getFirst("accessToken");
+
+        assertThat(token1).isNotEqualTo(token2);
+    }
+
+    @Test
+    void whenLoginShouldProduceCookies() {
+        var credentials = new HyperUserCredentials("user", "password");
+        template.postForEntity("/register", credentials, Void.class);
+
+        var cookie = template.postForEntity("/login", credentials, HyperUserDto.class)
+                .getHeaders().getFirst("JSESSIONID");
+
+        assertThat(cookie).isNotNull().isNotEmpty();
     }
 
     @Test
