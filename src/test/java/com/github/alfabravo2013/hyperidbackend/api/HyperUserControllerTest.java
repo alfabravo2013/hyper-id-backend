@@ -104,7 +104,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).contains("'password' cannot be blank");
+        assertThat(response.getBody().error().message()).contains("'password' cannot be empty");
     }
 
     @Test
