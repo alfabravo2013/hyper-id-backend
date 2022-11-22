@@ -60,7 +60,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).contains("'username' cannot be empty");
+        assertThat(response.getBody().error().message()).contains("'username' is empty");
     }
 
     @Test
@@ -71,7 +71,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).contains("'username' cannot be empty");
+        assertThat(response.getBody().error().message()).contains("'username' is empty");
     }
 
     @Test
@@ -82,7 +82,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).contains("'username' cannot be empty");
+        assertThat(response.getBody().error().message()).contains("'username' is empty");
     }
 
     @Test
@@ -93,7 +93,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).contains("'password' cannot be empty");
+        assertThat(response.getBody().error().message()).contains("'password' is empty");
     }
 
     @Test
@@ -104,7 +104,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).contains("'password' cannot be empty");
+        assertThat(response.getBody().error().message()).contains("'password' is empty");
     }
 
     @Test
@@ -115,7 +115,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).contains("'password' cannot be empty");
+        assertThat(response.getBody().error().message()).contains("'password' is empty");
     }
 
     @Test
@@ -173,7 +173,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).contains("'username' cannot be empty");
+        assertThat(response.getBody().error().message()).contains("'username' is empty");
     }
 
     @Test
@@ -184,7 +184,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).contains("'username' cannot be empty");
+        assertThat(response.getBody().error().message()).contains("'username' is empty");
     }
 
     @Test
@@ -195,7 +195,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).contains("'username' cannot be empty");
+        assertThat(response.getBody().error().message()).contains("'username' is empty");
     }
 
     @Test
@@ -206,7 +206,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).contains("'password' cannot be empty");
+        assertThat(response.getBody().error().message()).contains("'password' is empty");
     }
 
     @Test
@@ -217,7 +217,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).contains("'password' cannot be empty");
+        assertThat(response.getBody().error().message()).contains("'password' is empty");
     }
 
     @Test
@@ -228,7 +228,7 @@ class HyperUserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().error().message()).contains("'password' cannot be empty");
+        assertThat(response.getBody().error().message()).contains("'password' is empty");
     }
 
     @Test
@@ -287,7 +287,7 @@ class HyperUserControllerTest {
         template.postForEntity("/register", credentials, Void.class);
 
         var cookie = template.postForEntity("/login", credentials, HyperUserDto.class)
-                .getHeaders().getFirst("JSESSIONID");
+                .getHeaders().getFirst(HttpHeaders.SET_COOKIE);
 
         assertThat(cookie).isNotNull().isNotEmpty();
     }
