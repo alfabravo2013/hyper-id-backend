@@ -19,7 +19,7 @@ jobs:
         graalvm-version: ['22.0.0.2']
         java-version: ['17']
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-20.04
             executable-suffix: ''
           - os: macos-latest
             executable-suffix: ''
