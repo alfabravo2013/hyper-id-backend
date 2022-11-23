@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,31 +27,43 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(UsernameTakenException.class)
-    public ResponseEntity<ErrorDto> handleUsernameTaken(HttpServletRequest req, UsernameTakenException ex) {
+    public ResponseEntity<String> handleUsernameTaken(HttpServletRequest req, UsernameTakenException ex) {
         LOGGER.debug("Handling {} exception", ex.getClass().getSimpleName());
-        var body = ErrorDto.of(ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+        var body = ErrorDto.of(ex.getMessage()).toString();
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body);
     }
 
     @ExceptionHandler(FailedAuthException.class)
-    public ResponseEntity<ErrorDto> handleAuthFailure(HttpServletRequest req, FailedAuthException ex) {
+    public ResponseEntity<String> handleAuthFailure(HttpServletRequest req, FailedAuthException ex) {
         LOGGER.debug("Handling {} exception", ex.getClass().getSimpleName());
-        var body = ErrorDto.of(ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
+        var body = ErrorDto.of(ex.getMessage()).toString();
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorDto> handleAccessDenied(HttpServletRequest req, AccessDeniedException ex) {
+    public ResponseEntity<String> handleAccessDenied(HttpServletRequest req, AccessDeniedException ex) {
         LOGGER.debug("Handling {} exception", ex.getClass().getSimpleName());
-        var body = ErrorDto.of(ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+        var body = ErrorDto.of(ex.getMessage()).toString();
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body);
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorDto> handleNotFound(HttpServletRequest req, NotFoundException ex) {
+    public ResponseEntity<String> handleNotFound(HttpServletRequest req, NotFoundException ex) {
         LOGGER.debug("Handling {} exception", ex.getClass().getSimpleName());
-        var body = ErrorDto.of(ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+        var body = ErrorDto.of(ex.getMessage()).toString();
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body);
     }
 
     @Override
@@ -64,8 +77,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .findFirst()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .orElse(ex.getMessage());
-        var body = ErrorDto.of(message);
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        var body = ErrorDto.of(message).toString();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body);
     }
 
     @Override
@@ -80,14 +96,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         if (rootCause instanceof UnrecognizedPropertyException) {
             message = "Unknown field: " + ((UnrecognizedPropertyException) rootCause).getPropertyName();
         }
-        var body = ErrorDto.of(message);
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        var body = ErrorDto.of(message).toString();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body);
     }
 
     @ExceptionHandler(MissingRequestHeaderException.class)
-    public ResponseEntity<ErrorDto> handleMissingHeader(HttpServletRequest req, MissingRequestHeaderException ex) {
+    public ResponseEntity<String> handleMissingHeader(HttpServletRequest req, MissingRequestHeaderException ex) {
         LOGGER.debug("Handling {} exception", ex.getClass().getSimpleName());
-        var body = ErrorDto.of("Header 'Authorization' is empty");
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        var body = ErrorDto.of("Header 'Authorization' is empty").toString();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body);
     }
 }

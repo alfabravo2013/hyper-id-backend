@@ -6,5 +6,15 @@ public record ErrorDto(ErrorMsg error) {
         return new ErrorDto(new ErrorMsg(message));
     }
 
-    public record ErrorMsg(String message) { }
+    public record ErrorMsg(String message) {
+        @Override
+        public String toString() {
+            return "{\"message\": \"" + message + "\"}";
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "{\"error\": " + error.toString() + '}';
+    }
 }
