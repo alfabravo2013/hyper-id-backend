@@ -25,7 +25,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.validation.Valid;
 
-@CrossOrigin(originPatterns = "*")
+@CrossOrigin
 @RestController
 public class HyperUserController {
     private static final Logger LOGGER = LoggerFactory.getLogger(HyperUserController.class);
