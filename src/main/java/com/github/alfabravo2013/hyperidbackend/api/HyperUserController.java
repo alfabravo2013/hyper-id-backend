@@ -83,6 +83,7 @@ public class HyperUserController {
         var headers = new HttpHeaders();
         headers.add("sessionId", sessionId);
         headers.add("accessToken", token);
+        headers.add("Access-Control-Expose-Headers", "accessToken");
 
         return new ResponseEntity<>(body, headers, HttpStatus.OK);
     }
